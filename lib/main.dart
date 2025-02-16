@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:psoas_va_mobile/firebase_options.dart';
 
@@ -9,10 +11,17 @@ import 'src/features/home/ui/home.dart';
 
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.android
   );
+
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  OneSignal.initialize(dotenv.env['ONESIGNAL_APP_ID']!);
+  OneSignal.Notifications.requestPermission(true);
+
+
   runApp(const MyApp());
 }
 
