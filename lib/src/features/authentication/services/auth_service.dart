@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:psoas_va_mobile/src/features/authentication/data/models/user_model.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -39,15 +41,20 @@ class AuthService {
   // write user data to firestore
   Future<User> writeUserDataToFirestore(User? user) async {
     try {
-      await _firestore.collection('users').doc(user!.uid).set({
-        'uid': user.uid,
-        'email': user.email,
-        'displayName': user.displayName,
-        'photoURL': user.photoURL,
-      });
+
+      final deviceState = await OneSignal.User.getOnesignalId();
+      UserModel userModel = UserModel(
+        id: user!.uid,
+        email: user.email!,
+        name: user.displayName!,
+        photoUrl: user.photoURL!,
+        oneSignalDeviceId: deviceState!,
+        
+      );
+
+      await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
       return user;
     } catch (e) {
-      print("Firestore Error: $e");
       return user!;
     }
   }
