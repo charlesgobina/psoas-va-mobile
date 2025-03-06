@@ -31,17 +31,20 @@ Vapasun is designed to help users browse, search, and apply for apartments. The 
 <details>
 <summary>Click to expand screenshots</summary>
 
-### Home Screen
-[Insert Home Screen Screenshot]
+### Login
+[Login Screen](./assets/screenshots/Screenshot%202025-03-06%20110526.png)
 
 ### Apartment Listings
-[Insert Apartment Listings Screenshot]
+[Apartment Listings Screenshot](./assets/screenshots/Screenshot%202025-03-06%20110210.png)
 
 ### Apartment Details
-[Insert Apartment Details Screenshot]
+[Apartment Details Screenshot](./assets/screenshots/Screenshot%202025-03-06%20110311.png)
 
 ### User Profile
-[Insert User Profile Screenshot]
+[User Account Screenshot](./assets/screenshots/Screenshot%202025-03-06%20110421.png)
+
+### Dream Apartment Screen
+[Dream Apartment](./assets/screenshots/Screenshot%202025-03-06%20110350.png)
 
 </details>
 
