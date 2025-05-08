@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:psoas_va_mobile/src/features/apartments/data/models/dream_apartment_model.dart';
-import 'package:psoas_va_mobile/src/features/apartments/domain/providers/apartment_states.dart';
 import 'package:psoas_va_mobile/src/features/apartments/domain/providers/dream_apartment_provider.dart';
-import 'dart:math' as math;
-
-import '../../../domain/providers/apartment_provider.dart';
-import '../../../domain/providers/dream_apartment_states.dart';
+import 'package:psoas_va_mobile/src/features/apartments/domain/providers/dream_apartment_states.dart';
 
 class DreamApartmentBottomSheet extends StatefulWidget {
-  const DreamApartmentBottomSheet({super.key});
+  final bool isFilter;
+  const DreamApartmentBottomSheet({super.key, this.isFilter = false});
 
   @override
   State<DreamApartmentBottomSheet> createState() =>
@@ -19,29 +15,36 @@ class DreamApartmentBottomSheet extends StatefulWidget {
 
 class _DreamApartmentBottomSheetState extends State<DreamApartmentBottomSheet> {
   final _formKey = GlobalKey<FormState>();
-  // apartment provider
 
-  // Sliders
+  // Selected filters
+  String _houseType = 'All of them';
+  String _rooms = '4 Room';
+  String _size = 'Up to 100';
   double _minRent = 300;
   double _maxRent = 1000;
-  double _floor = 1;
-
-  // Dropdowns
-  String _rooms = '1';
-  String _apartmentType = 'Any';
   String _location = 'Tellervo';
 
-  // Checkboxes
-  bool _hasSauna = false;
-
-  // Options
-  final List<String> _roomOptions = ['1', '2', '3', '4+'];
-  final List<String> _apartmentTypeOptions = [
-    'Any',
+  // Filter options
+  final List<String> _houseTypeOptions = [
+    'All of them',
     'Studio',
-    'Family Apartment',
-    'Shared Apartment',
+    'Family',
+    'Shared'
   ];
+
+  final List<String> _roomOptions = [
+    'Studio',
+    '3 and less',
+    '4 Rooms',
+    '6 Rooms',
+  ];
+
+  final List<String> _sizeOptions = [
+    'Up to 30',
+    'Up to 50',
+    '51+',
+  ];
+
   final List<String> _locationOptions = [
     'Aro',
     'Aurora',
@@ -50,8 +53,8 @@ class _DreamApartmentBottomSheetState extends State<DreamApartmentBottomSheet> {
     'Kalervo',
     'Purseri',
     'Kaski',
-    'Puistokatu 6'
-        'Routa',
+    'Puistokatu 6',
+    'Routa',
     'Seilori',
     'Tellervo',
     'Timpuri',
@@ -90,10 +93,6 @@ class _DreamApartmentBottomSheetState extends State<DreamApartmentBottomSheet> {
     });
 
     return Container(
-      // constraints: BoxConstraints(
-      //   maxHeight: MediaQuery.of(context).size.height * 0.9,
-      //   maxWidth: MediaQuery.of(context).size.width,
-      // ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -122,147 +121,58 @@ class _DreamApartmentBottomSheetState extends State<DreamApartmentBottomSheet> {
                 ),
               ),
 
-              // Title with arched stars
-              _buildTitleWithStars('Define Your Dream Apartment 💫'),
-              const SizedBox(height: 26),
-
-              _buildDropdown(
-                label: 'Location',
-                value: _location,
-                items: _locationOptions,
-                onChanged: (value) {
-                  setState(() {
-                    _location = value!;
-                  });
-                },
-                icon: Icons.location_pin,
-              ),
-
-              // Number of rooms as radio buttons
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.bedroom_parent_outlined,
-                            size: 18, color: Theme.of(context).primaryColor),
-                        const SizedBox(width: 8),
-                        const Text('Number of rooms',
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8.0,
-                      children: _roomOptions.map((option) {
-                        return InkWell(
-                          onTap: () => setState(() => _rooms = option),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Radio<String>(
-                                  value: option,
-                                  groupValue: _rooms,
-                                  onChanged: (value) =>
-                                      setState(() => _rooms = value!),
-                                ),
-                                Text(option,
-                                    style: const TextStyle(fontSize: 14)),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+              // Filter Title
+              Center(
+                child: Text(
+                  widget.isFilter ? 'Filter' : 'Dream Apartment',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              _buildDropdown(
-                label: 'Apartment type',
-                value: _apartmentType,
-                items: _apartmentTypeOptions,
-                onChanged: (value) {
-                  setState(() {
-                    _apartmentType = value!;
-                    // Auto-set rooms to 1 for Studio or Shared Apartment
-                    if (_apartmentType == 'Studio' ||
-                        _apartmentType == 'Shared Apartment') {
-                      _rooms = '1';
-                    }
-                  });
-                },
-                icon: Icons.apartment,
-              ),
-              _buildRangeSlider(
-                label: 'Price range (€)',
-                minValue: _minRent,
-                maxValue: _maxRent,
-                min: 0,
-                max: 3000,
-                onChanged: (RangeValues values) {
-                  setState(() {
-                    _minRent = values.start;
-                    _maxRent = values.end;
-                  });
-                },
-                icon: Icons.euro,
-              ),
-              _buildSlider(
-                label: 'Floor',
-                value: _floor,
-                min: 0,
-                max: 10,
-                divisions: 9,
-                onChanged: (value) {
-                  setState(() => _floor = value);
-                  // show a snackbar saying "0" means any floor
-                  if (value == 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('0 means you are fine with any floor'),
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
-                  }
-                },
-                icon: Icons.layers,
-              ),
-              _buildSectionTitle('Additional Features'),
-              _buildCheckbox(
-                label: 'Sauna',
-                value: _hasSauna,
-                onChanged: (value) {
-                  setState(() => _hasSauna = value!);
-                },
-                icon: Icons.hot_tub,
-              ),
-              const SizedBox(height: 22),
-              SizedBox(
-                width: double.infinity,
-                child: apartmentProvider.dreamApartmentState
-                        is DreamApartmentLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        onPressed: () =>
-                            _submitForm(context, apartmentProvider),
-                        child: const Text(
-                          'Notify me',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-              ),
-              // Add extra padding at the bottom for bottom navigation or system UI
+              const SizedBox(height: 26),
+
+              // House Type
+              _buildFilterHeader('House Type'),
+              const SizedBox(height: 12),
+              _buildToggleButtonsRow(_houseTypeOptions, _houseType, (value) {
+                setState(() => _houseType = value);
+              }),
+              const SizedBox(height: 24),
+
+              // Rooms
+              _buildFilterHeader('Rooms'),
+              const SizedBox(height: 12),
+              _buildToggleButtonsRow(_roomOptions, _rooms, (value) {
+                setState(() => _rooms = value);
+              }),
+              const SizedBox(height: 24),
+
+              // Size
+              _buildFilterHeader('Size (M²)'),
+              const SizedBox(height: 12),
+              _buildToggleButtonsRow(_sizeOptions, _size, (value) {
+                setState(() => _size = value);
+              }),
+              const SizedBox(height: 24),
+
+              // Price Range
+              _buildFilterHeader('Price'),
+              const SizedBox(height: 12),
+              _buildPriceRangeSlider(),
+              const SizedBox(height: 24),
+
+              // Location
+              _buildFilterHeader('Location'),
+              const SizedBox(height: 12),
+              _buildLocationSearchField(),
+              const SizedBox(height: 32),
+
+              // Action buttons
+              _buildActionButtons(context, apartmentProvider),
+
+              // Add extra padding at the bottom
               SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
             ],
           ),
@@ -271,265 +181,325 @@ class _DreamApartmentBottomSheetState extends State<DreamApartmentBottomSheet> {
     );
   }
 
-  Widget _buildTitleWithStars(String title) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Arched stars
-          for (int i = 0; i < 8; i++) _buildStarInArc(i, 8),
-
-          // Title text
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 22.0,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ],
+  Widget _buildFilterHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Colors.black87,
       ),
     );
   }
 
-  Widget _buildStarInArc(int index, int totalStars) {
-    // Calculate position on an arc
-    final angle = (math.pi * index) / (totalStars - 1);
-    final radius = 80.0; // Radius of the arc
-
-    // Calculate position
-    final dx = radius * math.cos(angle);
-    final dy = -30 - (radius * math.sin(angle) * 0.5); // Flattened arc
-
-    // Star size varies based on position
-    final starSize = 16.0 - (6.0 * math.sin(angle)).abs();
-
-    return Positioned(
-      left: MediaQuery.of(context).size.width / 2 + dx - (starSize / 2),
-      top: dy,
-      child: Icon(
-        Icons.star,
-        size: starSize,
-        color: Color.fromARGB(
-          255,
-          255,
-          (200 + (index * 7)) % 256, // Vary the green component
-          100 + (index * 20) % 156, // Vary the blue component
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w400,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required String value,
-    required List<String> items,
-    required Function(String?) onChanged,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 18, color: Theme.of(context).primaryColor),
-              const SizedBox(width: 8),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 40,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: value,
-                  isExpanded: true,
-                  hint: const Text('Select'),
-                  items: items.map((String item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item, style: const TextStyle(fontSize: 14)),
-                    );
-                  }).toList(),
-                  onChanged: onChanged,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRangeSlider({
-    required String label,
-    required double minValue,
-    required double maxValue,
-    required double min,
-    required double max,
-    required Function(RangeValues) onChanged,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 18, color: Theme.of(context).primaryColor),
-              const SizedBox(width: 8),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text('€${minValue.toInt()}',
-                  style: TextStyle(color: Colors.grey.shade700)),
-              Expanded(
-                child: RangeSlider(
-                  values: RangeValues(minValue, maxValue),
-                  min: min,
-                  max: max,
-                  divisions: 30,
-                  labels: RangeLabels(
-                      '€${minValue.toInt()}', '€${maxValue.toInt()}'),
-                  onChanged: onChanged,
-                ),
-              ),
-              Text('€${maxValue.toInt()}',
-                  style: TextStyle(color: Colors.grey.shade700)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required Function(double) onChanged,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 18, color: Theme.of(context).primaryColor),
-              const SizedBox(width: 8),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(min.toInt().toString(),
-                  style: TextStyle(color: Colors.grey.shade700)),
-              Expanded(
-                child: Slider(
-                  value: value,
-                  min: min,
-                  max: max,
-                  divisions: divisions,
-                  label: value.toInt().toString(),
-                  onChanged: onChanged,
-                ),
-              ),
-              Text(max.toInt().toString(),
-                  style: TextStyle(color: Colors.grey.shade700)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckbox({
-    required String label,
-    required bool value,
-    required Function(bool?) onChanged,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+  Widget _buildToggleButtonsRow(
+      List<String> options, String selectedValue, Function(String) onSelected) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
-        children: [
-          Checkbox(
-            value: value,
-            onChanged: onChanged,
-          ),
-          Icon(icon, size: 18, color: Theme.of(context).primaryColor),
-          const SizedBox(width: 8),
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-        ],
+        children: options.map((option) {
+          final isSelected = selectedValue == option;
+          return Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: InkWell(
+              onTap: () => onSelected(option),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF33383F) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color:
+                        isSelected ? Colors.transparent : Colors.grey.shade300,
+                  ),
+                ),
+                child: Text(
+                  option,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.w500 : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
+  }
+
+  Widget _buildPriceRangeSlider() {
+    return Column(
+      children: [
+        SliderTheme(
+          data: SliderThemeData(
+            trackHeight: 4,
+            thumbColor: Colors.black,
+            activeTrackColor: Colors.black,
+            inactiveTrackColor: Colors.grey.shade300,
+            overlayColor: Colors.black.withOpacity(0.1),
+          ),
+          child: RangeSlider(
+            values: RangeValues(_minRent, _maxRent),
+            min: 0,
+            max: 3000,
+            divisions: 30,
+            onChanged: (RangeValues values) {
+              setState(() {
+                _minRent = values.start;
+                _maxRent = values.end;
+              });
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '€${_minRent.toInt()}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+            Text(
+              '€${_maxRent.toInt()}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocationSearchField() {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: ButtonTheme(
+          alignedDropdown: true,
+          child: DropdownButton<String>(
+            isExpanded: true,
+            value: _location,
+            icon: const Icon(Icons.keyboard_arrow_down),
+            borderRadius: BorderRadius.circular(15),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            items: _locationOptions.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _location = newValue;
+                });
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+      BuildContext context, DreamApartmentProvider apartmentProvider) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+                side: BorderSide(color: Colors.grey.shade300),
+              ),
+            ),
+            onPressed: () {
+              // Reset all filters
+              setState(() {
+                _houseType = 'All of them';
+                _rooms = '4 Room';
+                _size = 'Up to 50';
+                _minRent = 300;
+                _maxRent = 1000;
+                _location = 'Tellervo';
+              });
+            },
+            child: const Text('Reset'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        widget.isFilter
+            ? Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF33383F),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  onPressed: () => _applyFilter(context, apartmentProvider),
+                  child: apartmentProvider.dreamApartmentState
+                          is DreamApartmentLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text('Apply Filter'),
+                ),
+              )
+            : Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF33383F),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  onPressed: () => _submitForm(context, apartmentProvider),
+                  child: apartmentProvider.dreamApartmentState
+                          is DreamApartmentLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text('Notify Me'),
+                ),
+              ),
+      ],
+    );
+  }
+
+  void _applyFilter(
+      BuildContext context, DreamApartmentProvider apartmentProvider) {
+    if (_formKey.currentState!.validate()) {
+      // Convert room string to appropriate format
+      String rooms = _rooms;
+      if (_rooms == '3 and less')
+        rooms = '3';
+      else if (_rooms == '4 Room')
+        rooms = '4';
+      else if (_rooms == '6 Room')
+        rooms = '4+';
+      else if (_rooms == 'Studio') rooms = '1';
+
+      // Convert size to appropriate format
+      int? floor = 0; // Default to any floor
+
+      // Parse apartment type from house type
+      String apartmentType = 'Any';
+      if (_houseType == 'All of them') {
+        apartmentType = 'Any';
+      } else if (_houseType == 'Studio') {
+        apartmentType = 'Studio Apartment';
+      } else if (_houseType == 'Family') {
+        apartmentType = 'Family Apartment';
+      } else if (_houseType == 'Shared') {
+        apartmentType = 'Shared Apartment';
+      }
+
+      // Apartment size
+      String dreamApartmentSize = '0';
+      if (_size == 'Up to 30') {
+        dreamApartmentSize = '30';
+      } else if (_size == 'Up to 50') {
+        dreamApartmentSize = '50';
+      } else if (_size == '51+') {
+        dreamApartmentSize = '51';
+      }
+
+      // Create the dream apartment model from form data
+      final dreamApartment = DreamApartmentModel(
+        location: _location,
+        rooms: rooms,
+        apartmentType: apartmentType,
+        minRent: _minRent.toInt(),
+        maxRent: _maxRent.toInt(),
+        size: int.parse(dreamApartmentSize),
+        hasSauna: false, // Removed from UI as per design
+      );
+
+      print('filter applied: $dreamApartment'); 
+    }
   }
 
   void _submitForm(
       BuildContext context, DreamApartmentProvider apartmentProvider) {
     if (_formKey.currentState!.validate()) {
+      // Convert room string to appropriate format
+      String rooms = _rooms;
+      if (_rooms == '3 and less')
+        rooms = '3';
+      else if (_rooms == '4 Room')
+        rooms = '4';
+      else if (_rooms == '6 Room')
+        rooms = '4+';
+      else if (_rooms == 'Studio') rooms = '1';
+
+      // Convert size to appropriate format
+      int? floor = 0; // Default to any floor
+
+      // Parse apartment type from house type
+      String apartmentType = 'Any';
+      if (_houseType == 'All of them') {
+        apartmentType = 'Any';
+      } else if (_houseType == 'Studio') {
+        apartmentType = 'Studio Apartment';
+      } else if (_houseType == 'Family') {
+        apartmentType = 'Family Apartment';
+      } else if (_houseType == 'Shared') {
+        apartmentType = 'Shared Apartment';
+      }
+
+      // Apartment size
+      String dreamApartmentSize = '0';
+      if (_size == 'Up to 30') {
+        dreamApartmentSize = '30';
+      } else if (_size == 'Up to 50') {
+        dreamApartmentSize = '50';
+      } else if (_size == '51+') {
+        dreamApartmentSize = '51';
+      }
+
       // Create the dream apartment model from form data
       final dreamApartment = DreamApartmentModel(
         location: _location,
-        rooms: _rooms,
-        apartmentType: _apartmentType,
+        rooms: rooms,
+        apartmentType: apartmentType,
         minRent: _minRent.toInt(),
         maxRent: _maxRent.toInt(),
-        floor: _floor.toInt(),
-        hasSauna: _hasSauna,
+        size: int.parse(dreamApartmentSize),
+        hasSauna: false, // Removed from UI as per design
       );
       apartmentProvider.dreamApartment(dreamApartment);
     }
   }
 }
 
-// success dialogBox
+// Success dialog box
 void showSuccessDialog(BuildContext context) {
   showDialog(
     barrierDismissible: false,
@@ -573,7 +543,7 @@ void showSuccessDialog(BuildContext context) {
               ),
               const SizedBox(height: 24),
               const Text(
-                "Notification Set!",
+                "Filter Applied!",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -581,7 +551,7 @@ void showSuccessDialog(BuildContext context) {
               ),
               const SizedBox(height: 16),
               const Text(
-                "We'll notify you when your dream apartment becomes available.",
+                "We'll show you apartments that match your criteria.",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
@@ -590,16 +560,17 @@ void showSuccessDialog(BuildContext context) {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF33383F),
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  onPressed: () => {
-                    Navigator.of(context).pop(),
-                    // reset dream apartment state
+                  onPressed: () {
+                    Navigator.of(context).pop();
                     Provider.of<DreamApartmentProvider>(context, listen: false)
-                        .resetDreamApartmentState(),
+                        .resetDreamApartmentState();
                   },
                   child: const Text('Great!', style: TextStyle(fontSize: 16)),
                 ),
@@ -612,12 +583,14 @@ void showSuccessDialog(BuildContext context) {
   );
 }
 
-// Example of how to show this bottom sheet
-void showDreamApartmentBottomSheet(BuildContext context) {
+// Function to show the bottom sheet (dream apartment mode)
+void showDreamApartmentBottomSheet(BuildContext context, {bool isFilter = false}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => const DreamApartmentBottomSheet(),
+    builder: (context) => DreamApartmentBottomSheet(
+      isFilter: isFilter,
+    ),
   );
 }

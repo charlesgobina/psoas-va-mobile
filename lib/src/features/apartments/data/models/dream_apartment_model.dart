@@ -7,7 +7,7 @@ class DreamApartmentModel {
   final int minRent;
   final int maxRent;
   final String rooms;
-  final int floor;
+  final int size;
   final String apartmentType;
   final bool hasSauna;
   
@@ -17,7 +17,7 @@ class DreamApartmentModel {
     required this.minRent,
     required this.maxRent,
     required this.rooms,
-    required this.floor,
+    required this.size,
     required this.apartmentType,
     required this.hasSauna,
   });
@@ -27,7 +27,7 @@ class DreamApartmentModel {
     int? minRent,
     int? maxRent,
     String? rooms,
-    int? floor,
+    int? size,
     String? apartmentType,
     bool? hasSauna,
   }) {
@@ -36,7 +36,7 @@ class DreamApartmentModel {
       minRent: minRent ?? this.minRent,
       maxRent: maxRent ?? this.maxRent,
       rooms: rooms ?? this.rooms,
-      floor: floor ?? this.floor,
+      size: size ?? this.size,
       apartmentType: apartmentType ?? this.apartmentType,
       hasSauna: hasSauna ?? this.hasSauna,
     );
@@ -48,7 +48,7 @@ class DreamApartmentModel {
       'minRent': minRent,
       'maxRent': maxRent,
       'rooms': rooms,
-      'floor': floor,
+      'size': size,
       'apartmentType': apartmentType,
       'hasSauna': hasSauna,
     };
@@ -60,7 +60,7 @@ class DreamApartmentModel {
       minRent: map['minRent'] as int,
       maxRent: map['maxRent'] as int,
       rooms: map['rooms'] as String,
-      floor: map['floor'] as int,
+      size: map['size'] as int,
       apartmentType: map['apartmentType'] as String,
       hasSauna: map['hasSauna'] as bool,
     );
@@ -72,7 +72,7 @@ class DreamApartmentModel {
 
   @override
   String toString() {
-    return 'DreamApartmentModel(location: $location, minRent: $minRent, maxRent: $maxRent, rooms: $rooms, floor: $floor, apartmentType: $apartmentType, hasSauna: $hasSauna)';
+    return 'DreamApartmentModel(location: $location, minRent: $minRent, maxRent: $maxRent, rooms: $rooms, size: $size, apartmentType: $apartmentType, hasSauna: $hasSauna)';
   }
 
   @override
@@ -84,7 +84,7 @@ class DreamApartmentModel {
       other.minRent == minRent &&
       other.maxRent == maxRent &&
       other.rooms == rooms &&
-      other.floor == floor &&
+      other.size == size &&
       other.apartmentType == apartmentType &&
       other.hasSauna == hasSauna;
   }
@@ -95,7 +95,7 @@ class DreamApartmentModel {
       minRent.hashCode ^
       maxRent.hashCode ^
       rooms.hashCode ^
-      floor.hashCode ^
+      size.hashCode ^
       apartmentType.hashCode ^
       hasSauna.hashCode;
   }

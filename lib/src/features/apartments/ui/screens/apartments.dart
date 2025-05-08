@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:psoas_va_mobile/src/common/widgets/apartment_types_section.dart';
 import 'package:psoas_va_mobile/src/features/authentication/services/auth_service.dart';
-
 import '../../domain/providers/apartment_provider.dart';
 import '../../domain/providers/apartment_states.dart';
+import 'widgets/dream_apartment.dart';
 
 class Apartments extends StatefulWidget {
   Apartments({super.key});
@@ -47,7 +48,12 @@ class _ApartmentsState extends State<Apartments> {
                       (apartmentProvider.apartmentState as ApartmentFailure)
                           .message))
               : apartmentProvider.apartmentState is ApartmentSuccess
-                  ? RefreshIndicator(
+                  ? LiquidPullToRefresh(
+                      color: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      animSpeedFactor: 2.0,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      showChildOpacityTransition: true,
                       onRefresh: () async {
                         await apartmentProvider.loadApartments();
                       },
@@ -103,9 +109,7 @@ class _ApartmentsState extends State<Apartments> {
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Theme.of(context)
-                                            .shadowColor
-                                            .withOpacity(0.1),
+                                        color: Theme.of(context).shadowColor,
                                         blurRadius: 8,
                                         offset: const Offset(0, 2),
                                       ),
@@ -113,25 +117,27 @@ class _ApartmentsState extends State<Apartments> {
                                   ),
                                   child: TextField(
                                     decoration: InputDecoration(
-                                      fillColor: Theme.of(context).colorScheme.onPrimary,
+                                      fillColor: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                       hintText: 'Search apartments...',
                                       hintStyle: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onSurface
-                                              .withOpacity(0.6)),
+                                              .onSurface),
                                       prefixIcon: Icon(Icons.search,
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onSurface
-                                              .withOpacity(0.6)),
+                                              .onSurface),
                                       suffixIcon: IconButton(
                                         icon: Icon(Icons.filter_list,
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary),
                                         onPressed: () {
-                                          // TODO: Implement filter functionality
+                                          // show a bottom sheet
+                                          showDreamApartmentBottomSheet(context,
+                                              isFilter: true);
                                         },
                                       ),
                                       border: InputBorder.none,
