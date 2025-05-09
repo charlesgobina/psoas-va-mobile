@@ -15,7 +15,7 @@ class ApartmentDataSource {
     
     try {
       // Attempt to fetch data from API
-      final response = await dio.get('http://10.0.2.2:3000/api/ouluva/get_all_vacant_apartments');
+      final response = await dio.get('https://psoas-va-ultimate.onrender.com/api/ouluva/get_all_vacant_apartments');
       
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['vacantApartmentDetails'];

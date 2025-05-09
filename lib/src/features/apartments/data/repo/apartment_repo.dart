@@ -89,5 +89,17 @@ class ApartmentRepo {
     }
   }
 
+  // notify me function
+  Future<void> notifyMe(ApartmentModel apartment) async {
+    final currentUserId = AuthService().currentUser!.uid;
+    print('Current user ID: $currentUserId');
+    print('Apartment address: ${apartment.address}');
+    try {
+      await _firestore.collection('dream_apartment').doc(currentUserId).collection(apartment.apartmentType).doc(apartment.address).set(apartment.toMap());
+    } catch (e) {
+      throw Exception('Failed to write notify me data');
+    }
+  }
+
   
 }

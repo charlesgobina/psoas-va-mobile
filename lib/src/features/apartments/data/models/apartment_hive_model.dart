@@ -20,13 +20,13 @@ class ApartmentHiveModel extends HiveObject {
   String address;
 
   @HiveField(5)
-  String rooms;
+  double rooms;  // Changed from String to double
 
   @HiveField(6)
-  String sizeM2;
+  double sizeM2;  // Changed from String to double
 
   @HiveField(7)
-  String rent;
+  double rent;  // Changed from String to double
 
   @HiveField(8)
   String floor;

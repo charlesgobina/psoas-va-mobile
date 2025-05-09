@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psoas_va_mobile/src/common/app_preferences.dart';
 import 'dart:developer' as dev;
 import 'package:psoas_va_mobile/src/features/apartments/data/models/apartment_model.dart';
 import 'package:psoas_va_mobile/src/features/apartments/domain/providers/apartment_states.dart';
@@ -9,6 +10,7 @@ import '../../data/repo/apartment_repo.dart';
 class ApartmentProvider with ChangeNotifier {
   final ApartmentRepo repository;
   ApartmentStates _apartmentState = ApartmentInitial();
+  AppPreferences appPreferences = AppPreferences();
   ApartmentStates get apartmentState => _apartmentState;
 
   // test
@@ -72,7 +74,22 @@ class ApartmentProvider with ChangeNotifier {
     }
   }
 
-  
+  // notify me function
+  Future<void> notifyMe(ApartmentModel apartment) async {
+    // dev.log('NOTIFY ME');
+    _apartmentState = ApartmentNotifyLoading();
+    notifyListeners();
+    try {
+      await repository.notifyMe(apartment);
+      _apartmentState = ApartmentNotifySuccess([apartment]);
+      appPreferences.setNotifyMe(apartment.address, true);
+    } catch (e) {
+      dev.log("Error notifying me: ${e.toString()}");
+      _apartmentState = ApartmentNotifyFailure(e.toString());
+    } finally {
+      notifyListeners();
+    }
+  }
 
   void resetApartmentState() {
     _apartmentState = ApartmentInitial();

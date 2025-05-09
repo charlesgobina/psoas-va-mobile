@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:psoas_va_mobile/src/features/apartments/data/models/apartment_model.dart';
+import 'package:psoas_va_mobile/src/features/apartments/domain/providers/apartment_provider.dart';
+import 'package:psoas_va_mobile/src/features/apartments/domain/providers/apartment_states.dart';
+import 'package:pulsator/pulsator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ApartmentCard extends StatelessWidget {
@@ -9,8 +13,9 @@ class ApartmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final apartmentProvider = Provider.of<ApartmentProvider>(context);
     return GestureDetector(
-      onTap: () => _showApartmentDetails(context, apartment),
+      onTap: () => _showApartmentDetails(context, apartment, apartmentProvider),
       child: Container(
         width: 240.0,
         margin: const EdgeInsets.only(right: 12.0),
@@ -31,7 +36,7 @@ class ApartmentCard extends StatelessWidget {
                         const BorderRadius.vertical(top: Radius.circular(16.0)),
                     child: Image.network(
                       apartment.imageList.last,
-                      height: 140.0,
+                      height: 150.0,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
@@ -93,7 +98,7 @@ class ApartmentCard extends StatelessWidget {
                         ],
                       ),
                       child: Text(
-                        apartment.rent,
+                        '${apartment.rent.toStringAsFixed(2)} €/month',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -216,7 +221,8 @@ Future<void> _launchUrl(Uri url) async {
   }
 }
 
-void _showApartmentDetails(BuildContext context, ApartmentModel apartment) {
+void _showApartmentDetails(BuildContext context, ApartmentModel apartment,
+    ApartmentProvider apartmentProvider) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -309,27 +315,18 @@ void _showApartmentDetails(BuildContext context, ApartmentModel apartment) {
                                   ),
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: apartment.reserveButton != ''
-                                  ? Colors.green.withOpacity(0.9)
-                                  : const Color.fromARGB(255, 175, 142, 76)
-                                      .withOpacity(0.9),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Text(
-                              apartment.reserveButton != ''
-                                  ? 'Available'
-                                  : 'Unavailable',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          apartment.reserveButton != ''
+                              ? _featureChip(context, 'Available')
+                              : const PulseIcon(
+                                  icon: Icons.notifications,
+                                  pulseColor: Colors.green,
+                                  iconColor: Colors.white,
+                                  iconSize: 30,
+                                  innerSize: 54,
+                                  pulseSize: 96,
+                                  pulseCount: 4,
+                                  pulseDuration: Duration(seconds: 4),
+                                ),
                         ],
                       ),
 
@@ -363,20 +360,10 @@ void _showApartmentDetails(BuildContext context, ApartmentModel apartment) {
                               apartment.apartmentType.isNotEmpty == true
                                   ? apartment.apartmentType
                                   : 'N/A'),
-                          _detailItem(
-                              context,
-                              Icons.door_front_door,
-                              'Rooms',
-                              apartment.rooms.isNotEmpty == true
-                                  ? apartment.rooms
-                                  : 'N/A'),
-                          _detailItem(
-                              context,
-                              Icons.square_foot,
-                              'Size',
-                              apartment.sizeM2.isNotEmpty == true
-                                  ? apartment.sizeM2
-                                  : 'N/A'),
+                          _detailItem(context, Icons.door_front_door, 'Rooms',
+                              apartment.rooms.toStringAsPrecision(1)),
+                          _detailItem(context, Icons.square_foot, 'Size',
+                              '${apartment.sizeM2} m²'),
                         ],
                       ),
 
@@ -395,12 +382,12 @@ void _showApartmentDetails(BuildContext context, ApartmentModel apartment) {
                           _detailItem(
                               context,
                               Icons.calendar_today,
-                              'Available',
+                              'Availability',
                               apartment.vacantFrom.isNotEmpty == true
                                   ? apartment.vacantFrom
                                   : 'N/A'),
                           _detailItem(context, Icons.payments_outlined, 'Rent',
-                              apartment.rent),
+                              '${apartment.rent.toStringAsFixed(2)} €/month'),
                         ],
                       ),
 
@@ -523,7 +510,9 @@ void _showApartmentDetails(BuildContext context, ApartmentModel apartment) {
                                           Uri.parse(apartment.reserveButton);
                                       _launchUrl(apartmentUrl);
                                     }
-                                  : null,
+                                  : () async {
+                                      await apartmentProvider.notifyMe(apartment);
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     Theme.of(context).colorScheme.primary,
@@ -535,12 +524,26 @@ void _showApartmentDetails(BuildContext context, ApartmentModel apartment) {
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                               ),
-                              icon: const Icon(Icons.bookmark_outline),
-                              label: Text(
+                              icon: const Icon(
+                                Icons.bookmark_outline,
+                                color: Colors.white,
+                              ),
+                              label: apartmentProvider.apartmentState is ApartmentNotifyLoading ?
+                                  const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                                  :
+                                Text(
                                 apartment.reserveButton != ''
                                     ? 'Reserve Now'
-                                    : 'Reserved',
+                                    : 'Notify me',
                                 style: const TextStyle(
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -678,4 +681,3 @@ Widget _featureChip(BuildContext context, String label) {
     ),
   );
 }
-
