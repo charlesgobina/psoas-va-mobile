@@ -3,6 +3,9 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -16,19 +19,12 @@ import 'package:flutter/foundation.dart'
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
+    
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
+        return ios;      case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
           'you can reconfigure this by running the FlutterFire CLI again.',
@@ -40,49 +36,21 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCLVcyCdOe2eJjb5ZdA-8XIcvHEgdAd9xs',
-    appId: '1:1063272943073:web:c020a6c2864fee503716a0',
-    messagingSenderId: '1063272943073',
-    projectId: 'ouluva-50a13',
-    authDomain: 'ouluva-50a13.firebaseapp.com',
-    storageBucket: 'ouluva-50a13.firebasestorage.app',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAcjZ5bSVg-NrujehfTWxG0M3JKaEqDmyQ',
+  static FirebaseOptions android = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY']!,
     appId: '1:1063272943073:android:12f3304a4b3738a23716a0',
     messagingSenderId: '1063272943073',
     projectId: 'ouluva-50a13',
     storageBucket: 'ouluva-50a13.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBmwkj5vmIJQzoAXtk_FZnEQSK2zCh4K2k',
+  static FirebaseOptions ios = FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY']!,
     appId: '1:1063272943073:ios:6dfbf86e6756f7633716a0',
     messagingSenderId: '1063272943073',
     projectId: 'ouluva-50a13',
     storageBucket: 'ouluva-50a13.firebasestorage.app',
     iosClientId: '1063272943073-uotv6qcfpr1i6gt4466t295mjekdoafu.apps.googleusercontent.com',
     iosBundleId: 'com.example.psoasVaMobile',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBmwkj5vmIJQzoAXtk_FZnEQSK2zCh4K2k',
-    appId: '1:1063272943073:ios:6dfbf86e6756f7633716a0',
-    messagingSenderId: '1063272943073',
-    projectId: 'ouluva-50a13',
-    storageBucket: 'ouluva-50a13.firebasestorage.app',
-    iosClientId: '1063272943073-uotv6qcfpr1i6gt4466t295mjekdoafu.apps.googleusercontent.com',
-    iosBundleId: 'com.example.psoasVaMobile',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCLVcyCdOe2eJjb5ZdA-8XIcvHEgdAd9xs',
-    appId: '1:1063272943073:web:c020a6c2864fee503716a0',
-    messagingSenderId: '1063272943073',
-    projectId: 'ouluva-50a13',
-    authDomain: 'ouluva-50a13.firebaseapp.com',
-    storageBucket: 'ouluva-50a13.firebasestorage.app',
   );
 }
