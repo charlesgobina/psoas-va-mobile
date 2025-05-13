@@ -26,7 +26,7 @@ class AppPreferences {
   }
 
   // get notify me preference for an apartment
-  bool getNotifyMe(String address) {
+  bool? getNotifyMe(String address) {
     return _prefs.getBool(address) ?? false;
   }
 
