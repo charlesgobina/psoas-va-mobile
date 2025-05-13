@@ -23,7 +23,7 @@ class ApartmentDataSource {
             data.map((e) => ApartmentModel.fromJson(e)).toList();
         
         print("###################################");
-        print("API Apartments: $apiApartments");
+        print("API Apartments: $response");
         print("###################################");
         
         // Update cache if new data is different

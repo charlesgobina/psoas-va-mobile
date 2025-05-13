@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:psoas_va_mobile/src/common/app_preferences.dart';
 import 'package:psoas_va_mobile/src/features/apartments/ui/screens/widgets/dream_apartment.dart';
 import '../../authentication/ui/providers/auth_provider.dart';
 
@@ -142,8 +143,9 @@ class Home extends StatelessWidget {
               // Actual FAB
               FloatingActionButton(
                 onPressed: () {
+                  AppPreferences().clearAll();
                   // show a bottom sheet
-                  showDreamApartmentBottomSheet(context);
+                  // showDreamApartmentBottomSheet(context);
                 },
                 tooltip: 'Dream Apartment',
                 child: const Icon(Icons.add_home_rounded),

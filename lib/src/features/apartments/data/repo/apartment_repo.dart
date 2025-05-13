@@ -92,12 +92,25 @@ class ApartmentRepo {
   // notify me function
   Future<void> notifyMe(ApartmentModel apartment) async {
     final currentUserId = AuthService().currentUser!.uid;
-    print('Current user ID: $currentUserId');
-    print('Apartment address: ${apartment.address}');
+    
     try {
-      await _firestore.collection('dream_apartment').doc(currentUserId).collection(apartment.apartmentType).doc(apartment.address).set(apartment.toMap());
+      // Fixed collection name to be consistent with other functions (dream_apartments instead of dream_apartment)
+      await _firestore
+        .collection('dream_apartments')
+        .doc(currentUserId)
+        .collection(apartment.apartmentType)
+        .doc(apartment.apartmentId)
+        .set({
+          ...apartment.toMap(),
+          'createdAt': FieldValue.serverTimestamp(),
+          'notified': false
+        });
+      
     } catch (e) {
-      throw Exception('Failed to write notify me data');
+      print("################################");
+      print('Error notifying me: ${e.toString()}');
+      print("################################");
+      throw Exception('Failed to save notification preference: ${e.toString()}');
     }
   }
 
