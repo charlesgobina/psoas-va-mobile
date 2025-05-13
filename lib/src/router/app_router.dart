@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psoas_va_mobile/src/features/apartments/ui/screens/apartments.dart';
+import 'package:psoas_va_mobile/src/features/apartments/ui/screens/widgets/search_page.dart';
 import 'package:psoas_va_mobile/src/features/authentication/services/auth_service.dart';
 import 'package:psoas_va_mobile/src/features/profile/ui/screens/profile.dart';
 import 'package:psoas_va_mobile/src/features/settings/ui/screens/settings.dart';
@@ -38,6 +39,13 @@ final GoRouter appRouter = GoRouter(
               );
             },
           ),
+          routes: [
+            GoRoute(
+              path: 'search',  // This becomes /apartments/search
+              name: 'search',
+              builder: (context, state) => const SearchPage(),
+            ),
+          ],
         ),
         GoRoute(
           path: '/profile',

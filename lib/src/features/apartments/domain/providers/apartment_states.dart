@@ -19,3 +19,17 @@ class ApartmentFailure extends ApartmentStates {
 
   ApartmentFailure(this.message);
 }
+
+class ApartmentNotifyLoading extends ApartmentStates {}
+
+class ApartmentNotifySuccess extends ApartmentStates {
+  final List<ApartmentModel> apartments;
+
+  ApartmentNotifySuccess(this.apartments);
+}
+
+class ApartmentNotifyFailure extends ApartmentStates {
+  final String message;
+
+  ApartmentNotifyFailure(this.message);
+}

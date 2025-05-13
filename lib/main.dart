@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:psoas_va_mobile/firebase_options.dart';
+import 'package:psoas_va_mobile/src/common/app_preferences.dart';
 import 'package:psoas_va_mobile/src/config/themes/app_theme.dart';
 import 'package:psoas_va_mobile/src/features/apartments/data/data_source/apartment_data_source.dart';
 import 'package:psoas_va_mobile/src/features/apartments/data/models/apartment_hive_model.dart';
@@ -25,6 +26,7 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
+  AppPreferences().init();
 
   // definitions of variables
   ApartmentDataSource apartmentDataSource = ApartmentDataSource();
@@ -70,9 +72,10 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp.router(
+      
       debugShowCheckedModeBanner: false,
       title: 'Vapasun',
-      themeMode: themeProvider.themeMode,
+      themeMode: ThemeMode.system,
       darkTheme: AppTheme.darkTheme,
       theme: AppTheme.lightTheme,
       routerConfig: appRouter,

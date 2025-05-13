@@ -9,9 +9,9 @@ class ApartmentModel {
   String vacantFrom;
   String gender;
   String address;
-  String rooms;
-  String sizeM2;
-  String rent;
+  double rooms;         // Changed from String to double
+  double sizeM2;        // Changed from String to double
+  double rent;          // Changed from String to double
   String floor;
   bool placeForWashingMachine;
   bool placeForDishwasher;
@@ -38,9 +38,9 @@ class ApartmentModel {
     this.vacantFrom = "",
     this.gender = "",
     this.address = "",
-    this.rooms = "",
-    this.sizeM2 = "",
-    this.rent = "",
+    this.rooms = 0.0,      // Default changed to 0.0
+    this.sizeM2 = 0.0,     // Default changed to 0.0
+    this.rent = 0.0,       // Default changed to 0.0
     this.floor = "",
     this.placeForWashingMachine = false,
     this.placeForDishwasher = false,
@@ -68,9 +68,9 @@ class ApartmentModel {
       vacantFrom: json['vacantFrom'],
       gender: json['gender'],
       address: json['address'],
-      rooms: json['rooms'],
-      sizeM2: json['sizeM2'],
-      rent: json['rent'],
+      rooms: _parseDouble(json['rooms']),
+      sizeM2: _parseDouble(json['sizeM2']),
+      rent: _parseDouble(json['rent']),
       floor: json['floor'],
       placeForWashingMachine: json['placeForWashingMachine'],
       placeForDishwasher: json['placeForDishwasher'],
@@ -90,6 +90,25 @@ class ApartmentModel {
       ownUrl: json['ownUrl'],
       updatedAt: json['updatedAt'],
     );
+  }
+
+  // Helper method to parse String to double safely
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      // Remove any non-numeric characters except decimal point and process comma as decimal separator
+      String cleanedValue = value.replaceAll(RegExp(r'[^\d.,]'), '').trim();
+      // Replace comma with period for decimal
+      cleanedValue = cleanedValue.replaceAll(',', '.');
+      try {
+        return double.parse(cleanedValue);
+      } catch (e) {
+        return 0.0;
+      }
+    }
+    return 0.0;
   }
 
   Map<String, dynamic> toJson() {
@@ -129,9 +148,9 @@ class ApartmentModel {
     String? vacantFrom,
     String? gender,
     String? address,
-    String? rooms,
-    String? sizeM2,
-    String? rent,
+    double? rooms,
+    double? sizeM2,
+    double? rent,
     String? floor,
     bool? placeForWashingMachine,
     bool? placeForDishwasher,
@@ -219,9 +238,9 @@ class ApartmentModel {
       vacantFrom: map['vacantFrom'] as String,
       gender: map['gender'] as String,
       address: map['address'] as String,
-      rooms: map['rooms'] as String,
-      sizeM2: map['sizeM2'] as String,
-      rent: map['rent'] as String,
+      rooms: map['rooms'] is double ? map['rooms'] as double : _parseDouble(map['rooms']),
+      sizeM2: map['sizeM2'] is double ? map['sizeM2'] as double : _parseDouble(map['sizeM2']),
+      rent: map['rent'] is double ? map['rent'] as double : _parseDouble(map['rent']),
       floor: map['floor'] as String,
       placeForWashingMachine: map['placeForWashingMachine'] as bool,
       placeForDishwasher: map['placeForDishwasher'] as bool,
@@ -237,11 +256,30 @@ class ApartmentModel {
       asun: map['asun'] as String,
       parentLocation: map['parentLocation'] as String,
       apartmentType: map['apartmentType'] as String,
-      imageList: List<String>.from((map['imageList'] as List<String>)),
+      imageList: List<String>.from((map['imageList'] as List<dynamic>)),
       ownUrl: map['ownUrl'] as String,
       updatedAt: map['updatedAt'] as String,
     );
   }
+
+  // Added to class for reuse
+  // static double _parseDouble(dynamic value) {
+  //   if (value == null) return 0.0;
+  //   if (value is double) return value;
+  //   if (value is int) return value.toDouble();
+  //   if (value is String) {
+  //     // Remove any non-numeric characters except decimal point and process comma as decimal separator
+  //     String cleanedValue = value.replaceAll(RegExp(r'[^\d.,]'), '').trim();
+  //     // Replace comma with period for decimal
+  //     cleanedValue = cleanedValue.replaceAll(',', '.');
+  //     try {
+  //       return double.parse(cleanedValue);
+  //     } catch (e) {
+  //       return 0.0;
+  //     }
+  //   }
+  //   return 0.0;
+  // }
 
   @override
   String toString() {
@@ -310,7 +348,4 @@ class ApartmentModel {
       ownUrl.hashCode ^
       updatedAt.hashCode;
   }
-
-
 }
-

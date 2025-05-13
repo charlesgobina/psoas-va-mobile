@@ -89,5 +89,30 @@ class ApartmentRepo {
     }
   }
 
+  // notify me function
+  Future<void> notifyMe(ApartmentModel apartment) async {
+    final currentUserId = AuthService().currentUser!.uid;
+    
+    try {
+      // Fixed collection name to be consistent with other functions (dream_apartments instead of dream_apartment)
+      await _firestore
+        .collection('dream_apartments')
+        .doc(currentUserId)
+        .collection(apartment.apartmentType)
+        .doc(apartment.apartmentId)
+        .set({
+          ...apartment.toMap(),
+          'createdAt': FieldValue.serverTimestamp(),
+          'notified': false
+        });
+      
+    } catch (e) {
+      print("################################");
+      print('Error notifying me: ${e.toString()}');
+      print("################################");
+      throw Exception('Failed to save notification preference: ${e.toString()}');
+    }
+  }
+
   
 }

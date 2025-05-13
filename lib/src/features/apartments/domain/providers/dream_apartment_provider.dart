@@ -1,5 +1,6 @@
 
 import 'package:flutter/foundation.dart';
+import 'package:psoas_va_mobile/src/features/apartments/data/models/apartment_model.dart';
 import 'package:psoas_va_mobile/src/features/apartments/domain/providers/dream_apartment_states.dart';
 import 'dart:developer' as dev;
 import '../../data/models/dream_apartment_model.dart';
