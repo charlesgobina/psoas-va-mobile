@@ -34,15 +34,14 @@ class _ApartmentsState extends State<Apartments> {
     final apartments = apartmentProvider.categorizedApartments;
 
     // Only filter when we have apartments to display
-    final filteredEmptyApartments = apartments.entries
-        .where((entry) => entry.value.isNotEmpty)
-        .toList();
+    final filteredEmptyApartments =
+        apartments.entries.where((entry) => entry.value.isNotEmpty).toList();
 
     print("Filtered Empty Apartments: $filteredEmptyApartments");
 
     // Check if we have apartments to show regardless of the state
-    final hasApartments = apartments.isNotEmpty && 
-        filteredEmptyApartments.isNotEmpty;
+    final hasApartments =
+        apartments.isNotEmpty && filteredEmptyApartments.isNotEmpty;
 
     return Scaffold(
       body: _buildBody(
@@ -66,7 +65,7 @@ class _ApartmentsState extends State<Apartments> {
     if (apartmentState is ApartmentLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     // Show error only if we have an apartment loading failure
     if (apartmentState is ApartmentFailure) {
       return Center(
@@ -87,8 +86,8 @@ class _ApartmentsState extends State<Apartments> {
     }
 
     // If we have no apartments to show but we're not in a loading or error state
-    if (!hasApartments && 
-        apartmentState is! ApartmentLoading && 
+    if (!hasApartments &&
+        apartmentState is! ApartmentLoading &&
         apartmentState is! ApartmentFailure) {
       return Center(
         child: Column(
@@ -100,7 +99,7 @@ class _ApartmentsState extends State<Apartments> {
               onPressed: () {
                 apartmentProvider.loadApartments();
               },
-              child: const Text('Refresh'),
+              child: const Text('Refresh Apartment'),
             ),
           ],
         ),
@@ -125,14 +124,14 @@ class _ApartmentsState extends State<Apartments> {
                 CustomSearchBar(
                   onTap: () {
                     GoRouter.of(context).go('/apartments/search');
-                  }, 
+                  },
                   onFilterTap: () {
                     showDreamApartmentBottomSheet(context);
                   },
                 ),
-                
+
                 // Show notification status if applicable
-                if (apartmentState is ApartmentNotifySuccess || 
+                if (apartmentState is ApartmentNotifySuccess ||
                     apartmentState is ApartmentNotifyFailure)
                   _buildNotificationStatusBar(context, apartmentState),
               ],
@@ -157,7 +156,8 @@ class _ApartmentsState extends State<Apartments> {
   }
 
   // Helper method to display notification status
-  Widget _buildNotificationStatusBar(BuildContext context, ApartmentStates state) {
+  Widget _buildNotificationStatusBar(
+      BuildContext context, ApartmentStates state) {
     if (state is ApartmentNotifySuccess) {
       // Auto-dismiss after a few seconds
       Future.delayed(const Duration(seconds: 3), () {
@@ -166,7 +166,7 @@ class _ApartmentsState extends State<Apartments> {
               .resetApartmentState();
         }
       });
-      
+
       return Container(
         margin: const EdgeInsets.all(16.0),
         padding: const EdgeInsets.all(12.0),
@@ -225,7 +225,7 @@ class _ApartmentsState extends State<Apartments> {
         ),
       );
     }
-    
+
     return const SizedBox.shrink();
   }
 }
